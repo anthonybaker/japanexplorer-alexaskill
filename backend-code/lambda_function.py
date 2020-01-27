@@ -25,17 +25,17 @@ logger = logging.getLogger()
 level = os.environ['LOG_LEVEL']
 logger.setLevel(int(level))
 
-WELCOME_MESSAGE = "Unleash your inner adventurer and explore the " \
-    " world and way beyond. On your adventure, <break time='1s'/> you start with " \
+WELCOME_MESSAGE = "Unleash your inner explorer and get to know the " \
+    " cities of Japan. On your cultural journey, <break time='1s'/> you start with " \
      "<prosody volume='x-loud'> a lot </prosody> of money and energy. " \
     "But the choices you make will either increase or decrease them. " \
-    "Your adventure ends when you either run out of money or energy. " \
-    "<say-as interpret-as='interjection'>Stay on your adventure as long as you can</say-as><break time='1s'/> before it ends! " \
-    "Start by saying visit <voice name='Giorgio'>Italy</voice> or visit <voice name='Nicole'>Australia</voice>"
+    "Your journey ends when you either run out of money or energy. " \
+    "<say-as interpret-as='interjection'>Stay exploring for as long as you can</say-as><break time='1s'/> before it ends! " \
+    "Start by saying explore <voice name='Takumi'>Tokyo</voice> or explore <voice name='Mizuki'>Kyoto</voice>"
 
-VISIT_COUNTRY_REPROMPT = "Do you want to visit <voice name=\"Giorgio\">Italy</voice> or <voice name=\"Nicole\">Australia</voice>?"
-YES_OR_N0_REPROMPTS = ['Do not stall adventurer! Please answer yes or no. If you need a travel tip, say speak to the guide.','Be careful adventurer, is your answer yes or no.','You are running out of time adventurer! Please answer yes or no.','Adventurer, is your answer yes or no. If you need a travel tip, say speak to the guide.','Yes or No, adventurer! If you need a travel tip, say speak to the guide.']
-GAME_END = "The next question could not be found for your adventure. You have reached the end."
+VISIT_CITY_REPROMPT = "Do you want to explore <voice name=\"Takumi\">Tokyo</voice> or <voice name=\"Mizuki\">Kyoto</voice>?"
+YES_OR_N0_REPROMPTS = ['Do not stall explorer! Please answer yes or no. If you need a travel tip, say speak to the guide.','Be careful explorer, is your answer yes or no.','You are running out of time explorer! Please answer yes or no.','Explorer, is your answer yes or no. If you need a travel tip, say speak to the guide.','Yes or No, explorer! If you need a travel tip, say speak to the guide.']
+GAME_END = "The next question could not be found for your journey. You have reached the end."
 
 #Handler for skill launch with no intent
 class LaunchRequestHandler(AbstractRequestHandler):
@@ -49,7 +49,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         response_builder = handler_input.response_builder
 
         speak_output = WELCOME_MESSAGE
-        reprompt_output = VISIT_COUNTRY_REPROMPT 
+        reprompt_output = VISIT_CITY_REPROMPT 
 
         return (
             response_builder
@@ -60,18 +60,18 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
 
 ####### Custom Intent Handlers########
-class StartAdventureIntentHandler(AbstractRequestHandler):
-    """Handler for Start Adventure intent."""
+class StartJapanExplorerIntentHandler(AbstractRequestHandler):
+    """Handler for Start Japan Explorer intent."""
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("StartAdventureIntent")(handler_input)
+        return ask_utils.is_intent_name("StartJapanExplorerIntent")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        logger.info("In StartAdventureIntentHandler")
+        logger.info("In StartJapanExplorerIntentHandler")
         response_builder = handler_input.response_builder
         speak_output = WELCOME_MESSAGE
-        reprompt_output = VISIT_COUNTRY_REPROMPT
+        reprompt_output = VISIT_CITY_REPROMPT
 
         return (
             response_builder
@@ -89,7 +89,7 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Hello, adventurer! It's good to see you! To play this game, start by saying, visit Italy or visit Australia. If you're stuck on a hard level, say speak to the guide. Don't forget that your wealth or energy either increase or decrease based on the choices you make while on your adventure. When you run out of either, the game ends. " 
+        speak_output = "Hello, explorer! It's good to see you! To play this game, start by saying, explore Tokyo or explore Kyoto. If you're stuck on a hard level, say speak to the guide. Don't forget that your wealth or energy either increase or decrease based on the choices you make while on your journey. When you run out of either, the game ends. " 
 
         return (
             handler_input.response_builder
@@ -109,7 +109,7 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         speak_output = "Goodbye!"
-        speak_output = speak_output + " New adventures to Egypt, England, and Greece coming soon!"
+        speak_output = speak_output + " New journeys to Sapporo, Nagasaki, and Okinawa coming soon!"
 
         return (
             handler_input.response_builder
@@ -126,7 +126,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         speech = (
                 "Sorry. I cannot help with that. I can help you "
-                "continue on your adventure by saying visit Italy or vist Australia. "
+                "continue on your journey by saying explore Tokyo or explore Kyoto. "
             )
         reprompt = "I didn't catch that. What can I help you with?"
 
@@ -189,7 +189,7 @@ sb = CustomSkillBuilder(api_client=DefaultApiClient())
 
 # Add all request handlers to the skill.
 sb.add_request_handler(LaunchRequestHandler())
-sb.add_request_handler(StartAdventureIntentHandler())
+sb.add_request_handler(StartJapanExplorerIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
