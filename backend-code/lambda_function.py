@@ -46,9 +46,9 @@ WELCOME_MESSAGE = "Unleash your inner explorer and get to know the " \
     "But the choices you make will either increase or decrease them. " \
     "Your journey ends when you either run out of money or energy. " \
     "<say-as interpret-as='interjection'>Stay exploring for as long as you can</say-as><break time='1s'/> before it ends! " \
-    "Start by saying explore <voice name='Takumi'>Tokio</voice> or explore <voice name='Mizuki'>Kioto</voice>"
+    "Start by saying explore <voice name='Takumi'><lang xml:lang=\"ja-JP\">Tokio</lang></voice> or explore <voice name='Mizuki'><lang xml:lang=\"ja-JP\">Kioto</lang></voice>"
 
-VISIT_CITY_REPROMPT = "Do you want to explore <voice name=\"Takumi\">Tokio</voice> or <voice name=\"Mizuki\">Kioto</voice>?"
+VISIT_CITY_REPROMPT = "Do you want to explore <voice name=\"Takumi\"><lang xml:lang=\"ja-JP\">Tokio</lang></voice> or <voice name=\"Mizuki\"><lang xml:lang=\"ja-JP\">Kioto</lang></voice>?"
 YES_OR_N0_REPROMPTS = ['Do not stall explorer! Please answer yes or no. If you need a travel tip, say speak to the guide.','Be careful explorer, is your answer yes or no.','You are running out of time explorer! Please answer yes or no.','Explorer, is your answer yes or no. If you need a travel tip, say speak to the guide.','Yes or No, explorer! If you need a travel tip, say speak to the guide.']
 GAME_END = "The next question could not be found for your journey. You have reached the end."
 
@@ -110,9 +110,9 @@ class StartJapanExplorerIntentHandler(AbstractRequestHandler):
 
                         #Determine city and play correct audio via SSML
                         if handler_input.attributes_manager.session_attributes["city"] == 'Tokyo':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new Tokio journey!</voice> " + speak_output 
-                        elif handler_input.attributes_manager.session_attributes["country"] == 'Australia':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new Kioto journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new <lang xml:lang=\"ja-JP\">Tokio</lang> journey!</voice> " + speak_output 
+                        elif handler_input.attributes_manager.session_attributes["city"] == 'Kioto':
+                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new <lang xml:lang=\"ja-JP\">Kioto</lang> journey!</voice> " + speak_output 
                         reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
                 else:
                     add_new_user(handler_input.request_envelope.context.system)
@@ -150,7 +150,7 @@ class YesIntentHandler(AbstractRequestHandler):
                 handler_input.response_builder.ask(reprompt_output)
         except:
             logger.error("An error in YesIntentHandler {}".format(handler_input)) 
-            speak_output = "Sorry, explorer! I don't understand what you want to do. {} If so, say visit Tokyo or Kyoto.".format(VISIT_CITY_REPROMPT)
+            speak_output = "Sorry, explorer! I don't understand what you want to do. {} If so, say visit <lang xml:lang=\"ja-JP\">Tokio</lang> or <lang xml:lang=\"ja-JP\">Kioto</lang>.".format(VISIT_CITY_REPROMPT)
 
         return (
             handler_input.response_builder
@@ -174,7 +174,7 @@ class NoIntentHandler(AbstractRequestHandler):
                 handler_input.response_builder.ask(reprompt_output)
         except:
             logger.error("An error in NoIntentHandler {}".format(handler_input)) 
-            speak_output = "Sorry, explorer! I don't understand what you want to do. {} If so, say visit Tokyo or Kyoto.".format(VISIT_CITY_REPROMPT)
+            speak_output = "Sorry, explorer! I don't understand what you want to do. {} If so, say visit <lang xml:lang=\"ja-JP\">Tokio</lang> or <lang xml:lang=\"ja-JP\">Kioto</lang>.".format(VISIT_CITY_REPROMPT)
 
         return (
             handler_input.response_builder
@@ -190,7 +190,7 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Hello, explorer! It's good to see you! To play this game, start by saying, visit Tokyo or visit Kyoto. If you're stuck on a hard level, say speak to the guide. Don't forget that your wealth or energy either increase or decrease based on the choices you make while on your journey. When you run out of either, the game ends. " 
+        speak_output = "Hello, explorer! It's good to see you! To play this game, start by saying, visit <lang xml:lang=\"ja-JP\">Tokio</lang> or visit <lang xml:lang=\"ja-JP\">Kioto</lang>. If you're stuck on a hard level, say speak to the guide. Don't forget that your wealth or energy either increase or decrease based on the choices you make while on your journey. When you run out of either, the game ends. " 
 
         return (
             handler_input.response_builder
@@ -225,7 +225,7 @@ class FallbackIntentHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         speech = (
                 "Sorry. I cannot help with that. I can help you "
-                "continue on your journey by saying explore Tokyo or vist Kyoto. "
+                "continue on your journey by saying explore <lang xml:lang=\"ja-JP\">Tokio</lang> or vist <lang xml:lang=\"ja-JP\">Kioto</lang>. "
             )
         reprompt = "I didn't catch that. What can I help you with?"
 
@@ -447,13 +447,13 @@ def has_active_journey(handler_input):
             return True
         else:
             return False
-    elif stats_record['Count'] > 1: #user has multiple adventures
+    elif stats_record['Count'] > 1: #user has multiple journeys
         #find the active adventure
         for x in range(0,stats_record['Count']):
             item = stats_record['Items'][x]
             if item['ActiveFlag'] == 'Y':
-                if 'country' not in handler_input.attributes_manager.session_attributes:
-                    handler_input.attributes_manager.session_attributes["country"] =  get_city_name(item['CountryId'])
+                if 'city' not in handler_input.attributes_manager.session_attributes:
+                    handler_input.attributes_manager.session_attributes["city"] =  get_city_name(item['City'])
                 
                 if 'stats_record' not in handler_input.attributes_manager.session_attributes:
                     new_item = {'Items':[item]}
@@ -514,11 +514,11 @@ def get_next_question(cityname, stats, handler_input):
 
     return speak_output
 
-#get correct Polly voice based on selected country
+#get correct Polly voice based on selected city
 def get_polly_voice(city):
-    if country == 'Tokyo':
+    if city == 'Tokyo':
        return "Takumi"
-    elif country == 'Kyoto':
+    elif city == 'Kyoto':
        return "Mizuki"
 
 def set_game_flag(value, handler_input):
@@ -542,7 +542,7 @@ def start_new_journey(handler_input):
     table = boto3.resource('dynamodb').Table('JPExpGameStats')
     date = str(dt.datetime.today().strftime("%Y-%m-%d"))
 
-    #add selected country to session
+    #add selected city to session
     handler_input.attributes_manager.session_attributes["city"] = handler_input.request_envelope.request.intent.slots['city'].value
 
     new_journey = {
