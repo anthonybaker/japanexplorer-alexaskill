@@ -46,9 +46,9 @@ WELCOME_MESSAGE = "Unleash your inner explorer and get to know the " \
     "But the choices you make will either increase or decrease them. " \
     "Your journey ends when you either run out of money or energy. " \
     "<say-as interpret-as='interjection'>Stay exploring for as long as you can</say-as><break time='1s'/> before it ends! " \
-    "Start by saying explore <voice name='Takumi'>To ki o</voice> or explore <voice name='Mizuki'>Ki o to</voice>"
+    "Start by saying explore <voice name='Takumi'>Tokio</voice> or explore <voice name='Mizuki'>Kioto</voice>"
 
-VISIT_CITY_REPROMPT = "Do you want to explore <voice name=\"Takumi\">To ki o</voice> or <voice name=\"Mizuki\">Ki o to</voice>?"
+VISIT_CITY_REPROMPT = "Do you want to explore <voice name=\"Takumi\">Tokio</voice> or <voice name=\"Mizuki\">Kioto</voice>?"
 YES_OR_N0_REPROMPTS = ['Do not stall explorer! Please answer yes or no. If you need a travel tip, say speak to the guide.','Be careful explorer, is your answer yes or no.','You are running out of time explorer! Please answer yes or no.','Explorer, is your answer yes or no. If you need a travel tip, say speak to the guide.','Yes or No, explorer! If you need a travel tip, say speak to the guide.']
 GAME_END = "The next question could not be found for your journey. You have reached the end."
 
@@ -110,9 +110,9 @@ class StartJapanExplorerIntentHandler(AbstractRequestHandler):
 
                         #Determine city and play correct audio via SSML
                         if handler_input.attributes_manager.session_attributes["city"] == 'Tokyo':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new To ki o journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new Tokio journey!</voice> " + speak_output 
                         elif handler_input.attributes_manager.session_attributes["country"] == 'Australia':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new Ki o to journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new Kioto journey!</voice> " + speak_output 
                         reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
                 else:
                     add_new_user(handler_input.request_envelope.context.system)
