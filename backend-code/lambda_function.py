@@ -94,25 +94,30 @@ class StartJapanExplorerIntentHandler(AbstractRequestHandler):
         try:
             #if user is already on the session, find current journey stats and ask the next Yes/No question
             if is_user_on_session(handler_input):
+                logger.info("User is on session, continuing journey") 
                 speak_output = continue_journey(handler_input)  
                 reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)] 
             else: #if user is not on session are they a new user or do they have an active journey
                 #is new user
                 if is_returning_user(handler_input):
+                    logger.info("Returning user, checking if there's an active journey") 
                     #find current journey stats and ask the next Yes/No question
                     #if active journey; welcome back to journey
                     if has_active_journey(handler_input):
+                        logger.info("User has an active journey, continouing journey") 
                         speak_output = continue_journey(handler_input)
                         reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)] 
                     else:
+                        logger.info("User on session doesn't have an active journey. Prompting for city") 
                         start_new_journey(handler_input) 
                         speak_output = get_next_question(handler_input.attributes_manager.session_attributes["city"],handler_input.attributes_manager.session_attributes["stats_record"],handler_input)  
 
                         #Determine city and play correct audio via SSML
+                        logger.info("Trying to figure out city. Getting city attribute to speak out in correct voice") 
                         if handler_input.attributes_manager.session_attributes["city"] == 'Tokyo':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new <lang xml:lang=\"ja-JP\">Tokio</lang> journey!</voice> " + speak_output 
-                        elif handler_input.attributes_manager.session_attributes["city"] == 'Kioto':
-                            speak_output = "<audio src=\"http://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new <lang xml:lang=\"ja-JP\">Kioto</lang> journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new <lang xml:lang=\"ja-JP\">Tokio</lang> journey!</voice> " + speak_output 
+                        elif handler_input.attributes_manager.session_attributes["city"] == 'Kyoto':
+                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new <lang xml:lang=\"ja-JP\">Kioto</lang> journey!</voice> " + speak_output 
                         reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
                 else:
                     add_new_user(handler_input.request_envelope.context.system)
@@ -299,6 +304,7 @@ def getRandomFact():
         return "Nagasaki is known for its delicious Japanese sake."
 
 def getYesorNoResponse(handler_input, textType):
+    logger.info("in getYesorNotResponse") 
     #retrieve the questions details
     table = boto3.resource('dynamodb').Table('JPExpStoryDetails')
     speak_output = GAME_END
@@ -353,6 +359,7 @@ def getYesorNoResponse(handler_input, textType):
     return speak_output 
 
 def updateStats(handler_input):
+    logger.info("in update_stats") 
     if is_user_on_session(handler_input) and has_active_journey(handler_input):
         table = boto3.resource('dynamodb').Table('JPExpGameStats')
         table.update_item(
@@ -390,11 +397,14 @@ def updateStats(handler_input):
             )
 
 def get_user(user_id):
+    logger.info("in get_user") 
+
     table = boto3.resource('dynamodb').Table('JPExpUsers')
     user = table.query(KeyConditionExpression=Key('UserId').eq(user_id)) # dynamo is case-sensitive
     return user  
 
 def is_returning_user(handler_input):
+    logger.info("in is_returning_user") 
     user_record = get_user(handler_input.request_envelope.context.system.user.user_id)
     if user_record['Count'] == 1:
         #add user to session
@@ -404,6 +414,7 @@ def is_returning_user(handler_input):
         return False
   
 def add_new_user(system):
+    logger.info("in add_new_user") 
     table = boto3.resource('dynamodb').Table('JPExpUsers')
     date = str(dt.datetime.today().strftime("%Y-%m-%d"))
     
@@ -430,6 +441,9 @@ def is_user_on_session(handler_input):
         return False
 
 def has_active_journey(handler_input):
+    
+    logger.info("in has_active_journey") 
+
     #get user from session
     user = handler_input.attributes_manager.session_attributes["user"]
     
@@ -453,7 +467,7 @@ def has_active_journey(handler_input):
             item = stats_record['Items'][x]
             if item['ActiveFlag'] == 'Y':
                 if 'city' not in handler_input.attributes_manager.session_attributes:
-                    handler_input.attributes_manager.session_attributes["city"] =  get_city_name(item['City'])
+                    handler_input.attributes_manager.session_attributes["city"] =  get_city_name(item['CityId'])
                 
                 if 'stats_record' not in handler_input.attributes_manager.session_attributes:
                     new_item = {'Items':[item]}
@@ -465,20 +479,22 @@ def has_active_journey(handler_input):
         return False
 
 def get_city_name(CityId):
+    logger.info("in get_city_name") 
     table = boto3.resource('dynamodb').Table('JPExpCities')
     city_record = table.query(KeyConditionExpression=Key('CityId').eq(CityId)) # dynamo is case-sensitive
 
     if city_record['Count'] == 1:
-        return city_record['Items'][0]['Name']
+        return city_record['Items'][0]['CityName']
     else:
         logger.error("Cannot find city name for given id {}".format(CityId)) 
         raise AskSdkException("Cannot find city name for given id {}".format(CityId)) 
 
 def get_city_id(CityName):
+    logger.info("in get_city_id") 
     table = boto3.resource('dynamodb').Table('JPExpCities')
     city_record = table.query(
-        IndexName='Name-index',
-        KeyConditionExpression=Key('Name').eq(CityName)) # dynamo is case-sensitive
+        IndexName='CityName-index',
+        KeyConditionExpression=Key('CityName').eq(CityName)) # dynamo is case-sensitive
     
     if city_record['Count'] == 1:
         return city_record['Items'][0]['CityId']
@@ -487,6 +503,7 @@ def get_city_id(CityName):
         raise AskSdkException("Cannot find city id for given name {}".format(CityName)) 
 
 def continue_journey(handler_input):
+    logger.info("in continue_journey") 
     speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Welcome back explorer! It's good to see you!</voice> " 
 
     speak_output = speak_output + get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)  
@@ -494,6 +511,7 @@ def continue_journey(handler_input):
     return speak_output
     
 def get_next_question(cityname, stats, handler_input):
+    logger.info(" in get_next_question") 
     #return next question
     table = boto3.resource('dynamodb').Table('JPExpStories')
     speak_output = GAME_END
@@ -516,12 +534,14 @@ def get_next_question(cityname, stats, handler_input):
 
 #get correct Polly voice based on selected city
 def get_polly_voice(city):
+    logger.info("in get_polly_voice") 
     if city == 'Tokyo':
        return "Takumi"
     elif city == 'Kyoto':
        return "Mizuki"
 
 def set_game_flag(value, handler_input):
+    logger.info("in set_game_flag") 
     if is_user_on_session(handler_input) and has_active_journey(handler_input):
         table = boto3.resource('dynamodb').Table('JPExpGameStats')
         table.update_item(
@@ -539,6 +559,7 @@ def set_game_flag(value, handler_input):
 
 def start_new_journey(handler_input):
     #create initial game stat record
+    logger.info("start_new_journey called") 
     table = boto3.resource('dynamodb').Table('JPExpGameStats')
     date = str(dt.datetime.today().strftime("%Y-%m-%d"))
 
