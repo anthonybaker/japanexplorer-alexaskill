@@ -62,7 +62,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         logger.info("In LaunchRequestHandler")
         response_builder = handler_input.response_builder
-        include_display(response_builder)
+        include_display(handler_input)
 
         #is returning user
         if is_returning_user(handler_input):
@@ -599,8 +599,45 @@ def is_warning_needed(current_wealth,current_energy):
         return False
 
 #add graphical component to the skill
-def include_display(response_builder):
+def supports_display(handler_input):
+    # type: (HandlerInput) -> bool
+    """Check if display is supported by the skill."""
+    #check the incoming request to the skill from the AVS to determine if the device the user invoked the skill on has a screen
+    try:
+        if hasattr(handler_input.request_envelope.context.system.device.supported_interfaces, 'display'):
+            if(handler_input.request_envelope.context.system.device.supported_interfaces.display is not None):
+                return True
+            else:
+                return False
+        else:
+            return False
+    except:
+        return False
+
+def include_display(handler_input):
     logger.info("in include display") 
+    
+    #Display Template Code
+    if supports_display(handler_input):
+        img = Image(
+            sources=[ImageInstance(url="https://d28n9h2es30znd.cloudfront.net/japan_travel_large.jpeg")])
+        title = "Japan Explorer"
+        primary_text = get_plain_text_content(
+            primary_text="Echo Display Screen: RenderTemplateDirective with BodyTemplate2")
+
+        handler_input.response_builder.add_directive(
+            RenderTemplateDirective(
+                BodyTemplate2(
+                    back_button=BackButtonBehavior.VISIBLE,
+                    image=img, 
+                    title=title,
+                    text_content=primary_text)))
+
+
+#add graphical card to the skill
+def include_card(response_builder):
+    logger.info("in include display") 
+
     #Card Code
     response_builder.set_card(
         ui.StandardCard(
