@@ -62,6 +62,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
         logger.info("In LaunchRequestHandler")
         response_builder = handler_input.response_builder
+        include_display(response_builder)
 
         #is returning user
         if is_returning_user(handler_input):
@@ -559,7 +560,7 @@ def set_game_flag(value, handler_input):
 
 def start_new_journey(handler_input):
     #create initial game stat record
-    logger.info("start_new_journey called") 
+    logger.info("in start_new_journey") 
     table = boto3.resource('dynamodb').Table('JPExpGameStats')
     date = str(dt.datetime.today().strftime("%Y-%m-%d"))
 
@@ -597,6 +598,20 @@ def is_warning_needed(current_wealth,current_energy):
     else:
         return False
 
+#add graphical component to the skill
+def include_display(response_builder):
+    logger.info("in include display") 
+    #Card Code
+    response_builder.set_card(
+        ui.StandardCard(
+            title="Japan Explorer",
+            text="Travelling is breathing",
+            image=ui.Image(
+                small_image_url="https://d28n9h2es30znd.cloudfront.net/japan_travel_small.jpeg",
+                large_image_url="https://d28n9h2es30znd.cloudfront.net/japan_travel_large.jpeg"
+            )
+        )
+    )
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
 # payloads to the handlers above. Make sure any new handlers or interceptors you've
