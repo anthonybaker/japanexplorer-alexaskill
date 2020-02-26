@@ -42,8 +42,8 @@ logger.setLevel(int(level))
 
 WELCOME_MESSAGE = "Unleash your inner explorer and get to know the cities of Japan." \
     "On your cultural journey, you start with <break time='0.2s'/>" \
-     "<prosody volume='x-loud'> a lot </prosody> of money, <prosody volume='x-loud'> and </prosody> energy. " \
-    "<amazon:effect name=\"whispered\"> <prosody rate='x-slow'> But the choices you make </prosody> </amazon:effect> "
+    "<prosody volume='x-loud'> a lot </prosody> of money, <prosody volume='x-loud'> and </prosody> energy. " \
+    "<amazon:effect name=\"whispered\"> <prosody rate='x-slow'> But the choices you make </prosody> </amazon:effect> " \
     "<break time='0.3s'/> will either increase or decrease them." \
     "Your journey ends when you either run out of money or energy. " \
     "<say-as interpret-as='interjection'>Stay exploring for as long as you can</say-as> before it ends! " \
