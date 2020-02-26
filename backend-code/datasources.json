@@ -1,0 +1,207 @@
+{
+    "listTemplate2Metadata": {
+        "type": "object",
+        "objectId": "lt1Metadata",
+        "backgroundImage": {
+            "contentDescription": null,
+            "smallSourceUrl": null,
+            "largeSourceUrl": null,
+            "sources": [
+                {
+                    "url": "https://d28n9h2es30znd.cloudfront.net/japan_travel_large.jpeg",
+                    "size": "small",
+                    "widthPixels": 0,
+                    "heightPixels": 0
+                },
+                {
+                    "url": "https://d28n9h2es30znd.cloudfront.net/japan_travel_large.jpeg",
+                    "size": "large",
+                    "widthPixels": 0,
+                    "heightPixels": 0
+                }
+            ]
+        },
+        "title": "Japan Explorer",
+        "logoUrl": "https://d28n9h2es30znd.cloudfront.net/logo.png"
+    },
+    "listTemplate2ListData": {
+        "type": "list",
+        "listId": "lt2Sample",
+        "totalNumberOfItems": 10,
+        "hintText": "Say, \"Alexa, open Japan Explorer and visit Tokyo\"",
+        "listPage": {
+            "listItems": [
+                {
+                    "listItemIdentifier": "eikando",
+                    "ordinalNumber": 1,
+                    "textContent": {
+                        "primaryText": {
+                            "type": "PlainText",
+                            "text": "Kyoto"
+                        },
+                        "secondaryText": {
+                            "type": "PlainText",
+                            "text": "Visit the temple light up"
+                        }
+                    },
+                    "image": {
+                        "contentDescription": null,
+                        "smallSourceUrl": null,
+                        "largeSourceUrl": null,
+                        "sources": [
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/eikando_lightup.jpeg",
+                                "size": "small",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            },
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/eikando_lightup.jpeg",
+                                "size": "large",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            }
+                        ]
+                    },
+                    "token": "eikando"
+                },
+                {
+                    "listItemIdentifier": "ramen",
+                    "ordinalNumber": 2,
+                    "textContent": {
+                        "primaryText": {
+                            "type": "PlainText",
+                            "text": "Tokyo"
+                        },
+                        "secondaryText": {
+                            "type": "RichText",
+                            "text": "Eat like a local"
+                        }
+                    },
+                    "image": {
+                        "contentDescription": null,
+                        "smallSourceUrl": null,
+                        "largeSourceUrl": null,
+                        "sources": [
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/tokyo_ramen.jpeg",
+                                "size": "small",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            },
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/tokyo_ramen.jpeg",
+                                "size": "large",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            }
+                        ]
+                    },
+                    "token": "ramen"
+                },
+                {
+                    "listItemIdentifier": "sake",
+                    "ordinalNumber": 3,
+                    "textContent": {
+                        "primaryText": {
+                            "type": "PlainText",
+                            "text": "Nagasaki"
+                        },
+                        "secondaryText": {
+                            "type": "RichText",
+                            "text": "Japan city coming soon"
+                        }
+                    },
+                    "image": {
+                        "contentDescription": null,
+                        "smallSourceUrl": null,
+                        "largeSourceUrl": null,
+                        "sources": [
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/nagasaki_sake.jpg",
+                                "size": "small",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            },
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/nagasaki_sake.jpg",
+                                "size": "large",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            }
+                        ]
+                    },
+                    "token": "sake"
+                },
+                {
+                    "listItemIdentifier": "crab",
+                    "ordinalNumber": 1,
+                    "textContent": {
+                        "primaryText": {
+                            "type": "PlainText",
+                            "text": "Sapporo"
+                        },
+                        "secondaryText": {
+                            "type": "PlainText",
+                            "text": "Japan city coming soon"
+                        }
+                    },
+                    "image": {
+                        "contentDescription": null,
+                        "smallSourceUrl": null,
+                        "largeSourceUrl": null,
+                        "sources": [
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/sapporo_crab.jpg",
+                                "size": "small",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            },
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/sapporo_crab.jpg",
+                                "size": "large",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            }
+                        ]
+                    },
+                    "token": "crab"
+                },
+                {
+                    "listItemIdentifier": "shrine",
+                    "ordinalNumber": 2,
+                    "textContent": {
+                        "primaryText": {
+                            "type": "PlainText",
+                            "text": "Fukuoka"
+                        },
+                        "secondaryText": {
+                            "type": "RichText",
+                            "text": "Japan city coming soon"
+                        }
+                    },
+                    "image": {
+                        "contentDescription": null,
+                        "smallSourceUrl": null,
+                        "largeSourceUrl": null,
+                        "sources": [
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/fukuoka_bridge_shrine.jpg ",
+                                "size": "small",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            },
+                            {
+                                "url": "https://d28n9h2es30znd.cloudfront.net/fukuoka_bridge_shrine.jpg ",
+                                "size": "large",
+                                "widthPixels": 0,
+                                "heightPixels": 0
+                            }
+                        ]
+                    },
+                    "token": "shrine"
+                }
+            ]
+        }
+    }
+}

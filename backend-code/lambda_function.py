@@ -614,8 +614,44 @@ def supports_display(handler_input):
     except:
         return False
 
+
+#add graphical component to the skill
 def include_display(handler_input):
-    logger.info("in include display") 
+    logger.info("in include_display") 
+    #APL Directive Code
+    if supports_apl(handler_input):
+        handler_input.response_builder.add_directive(
+            RenderDocumentDirective(
+                document=load_apl_document("main.json"),
+                datasources=load_apl_document("datasources.json")
+            )
+        )
+
+def supports_apl(handler_input):
+    logger.info("in support_apl") 
+    # type: (HandlerInput) -> bool
+    """Check if display is supported by the skill."""
+    try:
+        if hasattr(handler_input.request_envelope.context.system.device.supported_interfaces, 'alexa_presentation_apl'):
+            if(handler_input.request_envelope.context.system.device.supported_interfaces.alexa_presentation_apl is not None):
+                return True
+            else:
+                return False
+        else:
+            return False
+    except:
+        return False
+
+#APL helper functions
+def load_apl_document(file_path):
+    logger.info("in load_apl_document") 
+    # type: (str) -> Dict[str, Any]
+    """Load the apl json document at the path into a dict object."""
+    with open(file_path) as f:
+        return json.load(f)
+
+def include_display_template(handler_input):
+    logger.info("in include_display_template") 
     
     #Display Template Code
     if supports_display(handler_input):
@@ -636,7 +672,7 @@ def include_display(handler_input):
 
 #add graphical card to the skill
 def include_card(response_builder):
-    logger.info("in include display") 
+    logger.info("in include_card") 
 
     #Card Code
     response_builder.set_card(
