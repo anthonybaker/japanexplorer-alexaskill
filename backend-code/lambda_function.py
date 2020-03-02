@@ -513,7 +513,8 @@ def continue_journey(handler_input):
     return speak_output
     
 def get_next_question(cityname, stats, handler_input):
-    logger.info(" in get_next_question") 
+    logger.info(" in get_next_question City Name: {}".format(cityname))
+    logger.info(" in get_next_question Stats Completed Question Number: {}".format(stats['Items'][0]['QuestionNumber']+1))
     #return next question
     table = boto3.resource('dynamodb').Table('JPExpStories')
     speak_output = GAME_END
