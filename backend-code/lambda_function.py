@@ -62,6 +62,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         logger.info("In LaunchRequestHandler")
+        logger.info("The user's timezone is {} ".format(get_user_timezone(handler_input)))
         response_builder = handler_input.response_builder
         include_display(handler_input)
 
@@ -651,6 +652,21 @@ def load_apl_document(file_path):
     """Load the apl json document at the path into a dict object."""
     with open(file_path) as f:
         return json.load(f)
+
+
+#Alexa Settings API
+def get_user_timezone(handler_input):
+    base_uri = handler_input.request_envelope.context.system.api_endpoint
+    device_id = handler_input.request_envelope.context.system.device.device_id
+    api_access_token = handler_input.request_envelope.context.system.api_access_token
+    response = requests.get(base_uri + "/v2/devices/" + device_id + "/settings/System.timeZone", 
+                    headers = {
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer {}'.format(api_access_token)
+                    }
+                )
+    data = json.loads(response.text)
+    return data
 
 def include_display_template(handler_input):
     logger.info("in include_display_template") 
