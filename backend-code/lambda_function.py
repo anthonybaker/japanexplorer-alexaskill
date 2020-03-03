@@ -64,6 +64,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
         logger.info("In LaunchRequestHandler")
         logger.info("The user's timezone is {} ".format(get_user_timezone(handler_input)))
         logger.info("The user's country is {} ".format(get_user_country(handler_input)))
+        logger.info("The user's name is {} ".format(get_user_name(handler_input)))
         response_builder = handler_input.response_builder
         include_display(handler_input)
 
@@ -682,9 +683,28 @@ def get_user_country(handler_input):
                 )
     data = json.loads(response.text)
 
-    logger.info("get_user_country - device address API response: {}".format(data)) 
+    logger.info("in get_user_country - device address API response: {}".format(data)) 
     
     return data["countryCode"]
+
+#Customer Profile API
+#/v2/accounts/~current/settings/Profile.givenName
+#/v2/accounts/~current/settings/Profile.email
+#/v2/accounts/~current/settings/Profile.mobileNumber
+def get_user_name(handler_input):
+    base_uri = handler_input.request_envelope.context.system.api_endpoint
+    api_access_token = handler_input.request_envelope.context.system.api_access_token
+    response = requests.get(base_uri + "/v2/accounts/~current/settings/Profile.name", 
+                    headers = {
+                        'Accept': 'application/json',
+                        'Authorization': 'Bearer {}'.format(api_access_token)
+                    }
+                )
+    data = json.loads(response.text)
+
+    logger.info("in get_user_name - customer profile API response: {}".format(data)) 
+
+    return data
 
 def include_display_template(handler_input):
     logger.info("in include_display_template") 
