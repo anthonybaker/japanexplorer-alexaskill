@@ -681,6 +681,8 @@ def get_user_country(handler_input):
                     }
                 )
     data = json.loads(response.text)
+
+    logger.info("get_user_country - device address API response: {}".format(data)) 
     
     return data["countryCode"]
 
