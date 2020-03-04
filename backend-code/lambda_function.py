@@ -261,7 +261,7 @@ class UpsellResponseHandler(AbstractRequestHandler):
         include_display(handler_input)
 
         if handler_input.request_envelope.request.status.code == "200":
-            if is_returning_user(handler_input) and has_active_adventure(handler_input):
+            if is_returning_user(handler_input) and has_active_journey(handler_input):
                 if handler_input.request_envelope.request.payload.get("purchaseResult") == PurchaseResult.DECLINED.value:
                     speech = ("Let me repeat the question: {}".format(
                     get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)))
@@ -574,7 +574,7 @@ def has_active_journey(handler_input):
     #get user from session
     user = handler_input.attributes_manager.session_attributes["user"]
     
-    #determine if on an active adventure
+    #determine if on an active journey
     table = boto3.resource('dynamodb').Table('JPExpGameStats')
     stats_record = table.query(KeyConditionExpression=Key('PlayerNumber').eq(user['Items'][0]['PlayerNumber'])) 
 
@@ -589,7 +589,7 @@ def has_active_journey(handler_input):
         else:
             return False
     elif stats_record['Count'] > 1: #user has multiple journeys
-        #find the active adventure
+        #find the active journey
         for x in range(0,stats_record['Count']):
             item = stats_record['Items'][x]
             if item['ActiveFlag'] == 'Y':
@@ -600,7 +600,7 @@ def has_active_journey(handler_input):
                     new_item = {'Items':[item]}
                     handler_input.attributes_manager.session_attributes["stats_record"] = new_item
                 return True
-        #if no active adventure, return false
+        #if no active journey, return false
         return False
     else:
         return False
