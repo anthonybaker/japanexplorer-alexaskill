@@ -930,6 +930,10 @@ sb.add_request_handler(SessionEndedRequestHandler())
 sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(YesIntentHandler())
 sb.add_request_handler(NoIntentHandler())
+sb.add_request_handler(SpeakToGuideIntentHandler())
+sb.add_request_handler(UpsellResponseHandler())
+sb.add_request_handler(RefundResponseHandler())
+sb.add_request_handler(RefundCancelResponseHandler())
 
 # Add exception handler to the skill.
 sb.add_exception_handler(CatchAllExceptionHandler())
