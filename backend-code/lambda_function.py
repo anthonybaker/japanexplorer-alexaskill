@@ -193,6 +193,127 @@ class NoIntentHandler(AbstractRequestHandler):
                 .response
         )
 
+class SpeakToGuideIntentHandler(AbstractRequestHandler):
+    """Handler for Speak to Guide Intent."""
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("SpeakToGuideIntent")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        #retrieve ISP products on session
+        try:
+            #list of products associated to the skill
+            isp_response = get_isp_products(handler_input)
+            response_builder = handler_input.response_builder
+
+            #check to see if user has a previously purchased a travel tip
+            if is_user_entitled(isp_response):
+                #if yes, let them use it
+                tip_for_question = get_tip_for_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"], handler_input)
+                next_question = get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)
+                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Hello explorer! " + tip_for_question + "</voice> " + next_question  
+                reprompt_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\"> Explorer, don't hesistate! " + tip_for_question + "</voice> " + next_question 
+                include_display(handler_input)
+                
+                return (
+                    response_builder
+                        .speak(speak_output)
+                        .ask(reprompt_output )
+                        .response
+                )
+            else:
+                #if not, upsell (sell) it to them
+                upsell_msg = ("You don't currently own {}. Want to learn more?").format(isp_response.in_skill_products[0].summary)
+                include_display(handler_input)
+                            
+                return response_builder.add_directive(
+                        SendRequestDirective(name="Upsell",
+                                    payload={
+                                        "InSkillProduct": {
+                                            "productId": isp_response.in_skill_products[0].product_id,
+                                        },
+                                        "upsellMessage": upsell_msg,
+                                    },
+                                    token="correlationToken")
+                            ).response
+        except:
+            logger.error("An error in SpeakToGuideIntentHandler for text type {} ".format(handler_input)) 
+            speak_output = "A tip is not available at this time. Make sure that you are in active game play. Say visit Tokyo or visit Kyoto"
+            reprompt_output = "Would you like to visit Tokyo or Kyoto?"
+            return (
+                response_builder
+                    .speak(speak_output)
+                    .ask(reprompt_output) 
+                    .response
+            ) 
+
+class UpsellResponseHandler(AbstractRequestHandler):
+    """This handles the Connections.Response event after an upsell occurs."""
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return (is_request_type("Connections.Response")(handler_input) and
+                handler_input.request_envelope.request.name == "Upsell")
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        response_builder = handler_input.response_builder
+        include_display(handler_input)
+
+        if handler_input.request_envelope.request.status.code == "200":
+            if is_returning_user(handler_input) and has_active_adventure(handler_input):
+                if handler_input.request_envelope.request.payload.get("purchaseResult") == PurchaseResult.DECLINED.value:
+                    speech = ("Let me repeat the question: {}".format(
+                    get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)))
+                    reprompt = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
+                    return response_builder.speak(speech).ask(reprompt).response          
+                elif handler_input.request_envelope.request.payload.get("purchaseResult") == PurchaseResult.ACCEPTED.value or handler_input.request_envelope.request.payload.get("purchaseResult") == PurchaseResult.ALREADY_PURCHASED.value:
+                    speech = ("Your exploring tip is: {}. {}".format(get_tip_for_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"], handler_input),
+                            get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)))
+                    reprompt = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
+                    return response_builder.speak(speech).ask(reprompt).response
+        else:
+            logger.log("Connections.Response indicated failure. "
+                       "Error: {}".format(
+                handler_input.request_envelope.request.status.message))
+            return response_builder.speak(
+                "There was an error handling your Upsell request. "
+                "Please try again or contact us for help.").response
+       
+class RefundResponseHandler(AbstractRequestHandler):
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("RefundProductIntent")(handler_input)
+
+    def handle(self, handler_input):
+        response_builder = handler_input.response_builder
+        isp_response = get_isp_products(handler_input)
+        include_display(handler_input)
+                        
+        return response_builder.add_directive(
+                SendRequestDirective(
+                    name="Cancel",
+                    payload={
+                        "InSkillProduct": {
+                            "productId": isp_response.in_skill_products[0].product_id
+                        }
+                    },
+                            token="correlationToken")
+                    ).response
+       
+class RefundCancelResponseHandler(AbstractRequestHandler):
+    """This handles the Connections.Response event after a refund/cancel occurs."""
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return (is_request_type("Connections.Response")(handler_input) and
+                handler_input.request_envelope.request.name == "Cancel")
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        speech = None
+        include_display(handler_input)
+        return handler_input.response_builder.speak(speech).response
+
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
     def can_handle(self, handler_input):
@@ -754,6 +875,44 @@ def include_card(response_builder):
             )
         )
     )
+
+#ISP helper functions
+def get_isp_products(handler_input):
+    locale = handler_input.request_envelope.request.locale
+    mservice = handler_input.service_client_factory.get_monetization_service()
+    response = mservice.get_in_skill_products(locale)
+    
+    #add products to session
+    handler_input.attributes_manager.session_attributes["products"] = response
+    return response
+
+def is_user_entitled(response):
+    entitled_product_list = [
+        l for l in response.in_skill_products if (
+                l.entitled == EntitledState.ENTITLED)]
+    
+    if entitled_product_list:
+        return True
+    else:
+        return False
+
+def get_tip_for_question(cityname, stats, handler_input):
+    table = boto3.resource('dynamodb').Table('JPExpStoryDetails')
+    speak_output = GAME_END
+
+    #retrieve hint/tip for ISP and store on session
+    question_record = table.query(KeyConditionExpression=Key('CityId').eq(get_city_id(cityname)) &
+    Key('QuestionNumber').eq(stats['Items'][0]['QuestionNumber']+1)) #current completed question + 1
+
+    #record found
+    if question_record['Count'] == 1: 
+        speak_output = question_record['Items'][0]['Tip']
+        handler_input.attributes_manager.session_attributes['Tip'] = question_record['Items'][0]['Tip']
+    else: #record not found
+        logger.error("That question number doesn't exist: {}".format(stats['Items'][0]['QuestionNumber']+1)) 
+        #raise AskSdkException("That question number doesn't exist: {}".format(stats['Items'][0]['QuestionNumber']+1)) 
+
+    return speak_output
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
 # payloads to the handlers above. Make sure any new handlers or interceptors you've
