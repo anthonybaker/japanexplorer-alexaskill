@@ -44,7 +44,7 @@ WELCOME_MESSAGE = "Unleash your inner explorer and get to know the cities of Jap
     "On your cultural journey, you start with <break time='0.2s'/>" \
     "<prosody volume='x-loud'> a lot </prosody> of money, <prosody volume='x-loud'> and </prosody> energy. " \
     "<amazon:effect name=\"whispered\"> <prosody rate='x-slow'> But the choices you make </prosody> </amazon:effect> " \
-    "<break time='0.3s'/> will either increase or decrease them." \
+    "<break time='0.3s'/> will either increase, or decrease them." \
     "Your journey ends when you either run out of money or energy. " \
     "<say-as interpret-as='interjection'>Stay exploring for as long as you can</say-as> before it ends! " \
     "<break time='1s'/> Start by saying explore <voice name='Takumi'><lang xml:lang=\"ja-JP\">Tokyo</lang></voice> or explore <voice name='Mizuki'><lang xml:lang=\"ja-JP\">Kyoto</lang></voice>"
@@ -122,9 +122,9 @@ class StartJapanExplorerIntentHandler(AbstractRequestHandler):
                         #Determine city and play correct audio via SSML
                         logger.info("Trying to figure out city. Getting city attribute to speak out in correct voice") 
                         if handler_input.attributes_manager.session_attributes["city"] == 'Tokyo':
-                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\">Welcome to your new <lang xml:lang=\"ja-JP\">Tokyo</lang> journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/rail_starting.mp3\" /> <voice name=\"Takumi\"><lang xml:lang=\"ja-JP\">ようこそ</lang></voice> Welcome to your new Tokyo journey!" + speak_output 
                         elif handler_input.attributes_manager.session_attributes["city"] == 'Kyoto':
-                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"> Welcome to your new <lang xml:lang=\"ja-JP\">Kyoto</lang> journey!</voice> " + speak_output 
+                            speak_output = "<audio src=\"https://d28n9h2es30znd.cloudfront.net/town_morning.mp3\" /><voice name=\"Mizuki\"><lang xml:lang=\"ja-JP\">ようこそ</lang></voice> Welcome to your new Tokyo journey!" + speak_output 
                         reprompt_output = YES_OR_N0_REPROMPTS[randint(0, len(YES_OR_N0_REPROMPTS)-1)]  
                 else:
                     add_new_user(handler_input.request_envelope.context.system)
@@ -222,8 +222,8 @@ class SpeakToGuideIntentHandler(AbstractRequestHandler):
                 #if yes, let them use it
                 tip_for_question = get_tip_for_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"], handler_input)
                 next_question = get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)
-                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Hello explorer! " + tip_for_question + "</voice> " + next_question  
-                reprompt_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\"> Explorer, don't hesistate! " + tip_for_question + "</voice> " + next_question 
+                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\"><lang xml:lang=\"ja-JP\">こんにちわ</lang></voice>" + tip_for_question + next_question  
+                reprompt_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\"> <lang xml:lang=\"ja-JP\">頑張って</lang></voice>" + tip_for_question + next_question 
                 include_display(handler_input)
                 
                 return (
@@ -472,7 +472,7 @@ def getYesorNoResponse(handler_input, textType):
         if question_record['Count'] == 1: 
             #speak the Yes or No details
             speak_output = question_record['Items'][0][textType]
-            speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">" + speak_output + " </voice>"
+            speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">" +  "<lang xml:lang=\"ja-JP\">了解です</lang>" + " </voice>" + speak_output
 
             #increase current turns by 1 in session
             handler_input.attributes_manager.session_attributes["stats_record"]['Items'][0]['CurrentTurns'] += 1 
@@ -494,12 +494,12 @@ def getYesorNoResponse(handler_input, textType):
 
             #you are out of wealth or health -- the game is over
             if is_game_over(handler_input.attributes_manager.session_attributes["stats_record"]):
-                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Oh no explorer, you don't have enough wealth or energy to continue on your journey! This means your journey is over. </voice> " 
+                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">" + "<lang xml:lang=\"ja-JP\">残念ですね</lang>" + "</voice>" + "Oh no explorer, you don't have enough wealth or energy to continue on your journey! This means your journey is over." 
                 #update Game Stats to end the game by setting flag to N
                 set_game_flag('N', handler_input)
             #if they are low on wealth/health -- they need a warning
             elif is_warning_needed(current_wealth,current_energy):
-                speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Be careful explorer, you are running low on wealth or energy. If you need a travel tip, say speak to the guide.</voice> " 
+                speak_output = "<voice name=\"" + get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">" + "<lang xml:lang=\"ja-JP\">気をつけてください</lang>" + "</voice>" + "Be careful explorer, you are running low on wealth or energy. If you need a travel tip, say speak to the guide."
                 speak_output = speak_output + " " + get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)
             else: 
                 speak_output = speak_output + " " + get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)   
@@ -659,7 +659,7 @@ def get_city_id(CityName):
 
 def continue_journey(handler_input):
     logger.info("in continue_journey") 
-    speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">Welcome back explorer! It's good to see you!</voice> " 
+    speak_output = "<voice name=\""+ get_polly_voice(handler_input.attributes_manager.session_attributes["city"]) + "\">" + "<lang xml:lang=\"ja-JP\">ようこそ</lang>" + "</voice>" + " Welcome back explorer! It's good to see you! " 
 
     speak_output = speak_output + get_next_question(handler_input.attributes_manager.session_attributes["city"], handler_input.attributes_manager.session_attributes["stats_record"],handler_input)  
 
